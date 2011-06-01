@@ -23,7 +23,9 @@ namespace Terraria
         public int motdR, motdG, motdB;
         // Save config
         public int saveInterval = 600000;
-        private Thread saveThread; 
+        private Thread saveThread;
+        // Anti-hack config
+        public string kickorban;
 
         public override void Initialize()
         {
@@ -71,9 +73,6 @@ namespace Terraria
             }
         }
 
- 
-
-
         public void loadSettings()
         {
             this.settings.Clear();
@@ -88,6 +87,7 @@ namespace Terraria
                 writer.WriteLine("motdR=51");
                 writer.WriteLine("motdG=255");
                 writer.WriteLine("motdB=0");
+                writer.WriteLine("antihack=kick");
                 writer.Close();
             }
             foreach (string str2 in File.ReadAllLines(settingsPath))
@@ -181,6 +181,14 @@ namespace Terraria
         public override void onPlayerJoin(PlayerEvent ev)
         {
             this.motd(ev.getPlayer());
+            if (this.settings["antihack"] == "kick")
+            {
+                if (ev.getPlayer().statLifeMax > 400 | ev.getPlayer().statManaMax > 200)
+                {
+                    ev.getPlayer().kick("You were kicked for hacked health and/or mana!");
+                    Console.WriteLine(ev.getPlayer().name + " was kicked for hacking their health or mana!");
+                }
+            }
         }
     }
 
