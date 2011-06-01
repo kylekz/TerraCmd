@@ -1,3 +1,0 @@
-REQUIRES: tMod v7
-
-Made in C#, compile in a class library with a tMod binary as a reference.
