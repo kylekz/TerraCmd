@@ -31,7 +31,7 @@ namespace Terraria
             pluginName = "TerraCmd";
             pluginDescription = "Misc. commands for tMod";
             pluginAuthor = "Kaikz";
-            pluginVersion = "v1.0";
+            pluginVersion = "v1.1";
 
             this.registerHook(Hook.PLAYER_COMMAND);
             this.registerHook(Hook.PLAYER_CHAT);
@@ -58,7 +58,7 @@ namespace Terraria
         public void motd(Player p)
         {
             string msg = this.settings["motd"];
-            msg = msg.Replace("[player]", p.name).Replace("[server]", Main.getIP ?? "");
+            msg = msg.Replace("[player]", p.name).Replace("[server]", Main.getIP);
             p.sendMessage(msg, motdR, motdG, motdB);
         }
 
@@ -146,6 +146,34 @@ namespace Terraria
                 }
                 ev.getPlayer().sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
                 ev.setState(true);
+            }
+            else if (cmd[0] == "/terracmd")
+            {
+                if (cmd[1] == null)
+                {
+                    ev.getPlayer().sendMessage(pluginName + " v" + pluginVersion + " by " + pluginAuthor, 51, 255, 0);
+                }
+                else if (cmd[1] == "reload" && ev.getPlayer().isOP)
+                {
+                    loadSettings();
+                }
+            }
+            else if (cmd[0] == "/password" && ev.getPlayer().isOP)
+            {
+                if (cmd[1] == null)
+                {
+                    Netplay.password = "";
+                    ev.getPlayer().sendMessage("Server password removed!", 0, 255, 0);
+                }
+                else if (cmd[1].Length > 3)
+                {
+                    Netplay.password = cmd[1];
+                    ev.getPlayer().sendMessage("Password reset to: " + cmd[1] + "!", 0, 255, 0);
+                }
+                else
+                {
+                    ev.getPlayer().sendMessage("Invalid password!", 0, 255, 0);
+                }
             }
         }
 
