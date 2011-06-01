@@ -7,7 +7,6 @@ using System.Collections.Specialized;
 using System.Collections;
 using System.IO;
 using System.Threading;
-using Microsoft.Xna.Framework;
 
 namespace Terraria
 {
@@ -75,6 +74,7 @@ namespace Terraria
 
         public void loadSettings()
         {
+            this.settings = new Dictionary<string,string>();
             this.settings.Clear();
             if (!File.Exists(settingsPath))
             {
@@ -90,6 +90,7 @@ namespace Terraria
                 writer.WriteLine("antihack=kick");
                 writer.Close();
             }
+
             foreach (string str2 in File.ReadAllLines(settingsPath))
             {
                 this.settings.Add(str2.Split(new char[] { '=' })[0], str2.Split(new char[] { '=' })[1]);
@@ -100,6 +101,14 @@ namespace Terraria
             opR = int.Parse(this.settings["opR"]);
             opG = int.Parse(this.settings["opG"]);
             opB = int.Parse(this.settings["opB"]);
+
+            // MOTD Settings
+            motdR = int.Parse(this.settings["motdR"]);
+            motdG = int.Parse(this.settings["motdG"]);
+            motdB = int.Parse(this.settings["motdB"]);
+
+            // Anti-hack Settings
+            kickorban = this.settings["antihack"];
         }
 
         public Player getPlayerFromString(string p)
@@ -137,22 +146,6 @@ namespace Terraria
                 }
                 ev.getPlayer().sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
                 ev.setState(true);
-            }
-            else if (cmd[0].ToLower() == "/spawnnpc" && ev.getPlayer().isOP)
-            {
-                try
-                {
-                    NPCCode code = (NPCCode)Enum.Parse(typeof(NPCCode), cmd[1], true);
-                    NPC.NewNPC(((int)ev.getPlayer().position.X) + 5, (int)ev.getPlayer().position.Y, (int)code, 0);
-                    ev.getPlayer().sendMessage("Spawned " + cmd[1], 0x33, 0xcc, 0);
-                }
-                catch (Exception)
-                {
-                    ev.getPlayer().sendMessage("Invalid NPC", 0xff, 0, 0);
-                }
-                ev.setState(true);
-                return;
-
             }
         }
 
