@@ -1,4 +1,4 @@
-## TerraCmd - Fun & Admin Command for tMod.
+## TerraCmd - Fun & Admin Commands for tMod.
 
 ### Features
 
