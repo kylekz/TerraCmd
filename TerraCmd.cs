@@ -39,7 +39,7 @@ namespace Terraria
 
             loadSettings();
 
-            Console.WriteLine("[TerraCmd] loaded!");
+            Console.WriteLine("[TerraCmd] " + pluginVersion + " loaded!");
 
             this.saveThread = new Thread(new ThreadStart(this.saveMap));
             this.saveThread.Start();
@@ -47,7 +47,7 @@ namespace Terraria
 
         public override void Unload()
         {
-            Console.WriteLine("[TerraCmd] unloaded!");
+            Console.WriteLine("[TerraCmd] " + pluginVersion + " unloaded!");
         }
 
         public bool equalsIgnoreCase(string a, string b)
@@ -127,7 +127,7 @@ namespace Terraria
         {
             string[] cmd = ev.getCommandArray();
             Player player = ev.getPlayer();
-            if (cmd[0].ToLower() == "/list" || cmd[0] == "/playerlist" || cmd[0].ToLower() == "/online" || cmd[0].ToLower() == "/players")
+            if (cmd[0].ToLower() == "/list" || cmd[0] == "/playerlist" || cmd[0].ToLower() == "/online" || cmd[0].ToLower() == "/players" && player.hasPermissions("terracmd.playerlist"))
             {
                 string str = "";
                 for (int i = 0; i < 8; i++)
@@ -153,12 +153,12 @@ namespace Terraria
                 {
                     ev.getPlayer().sendMessage(pluginName + " v" + pluginVersion + " by " + pluginAuthor, 51, 255, 0);
                 }
-                else if (cmd[1] == "reload" && ev.getPlayer().isOP)
+                else if (cmd[1] == "reload" && ev.getPlayer().isOP || player.hasPermissions("terracmd.reload"))
                 {
                     loadSettings();
                 }
             }
-            else if (cmd[0] == "/password" && ev.getPlayer().isOP)
+            else if (cmd[0] == "/password" && ev.getPlayer().isOP || player.hasPermissions("terracmd.password"))
             {
                 if (cmd[1] == null)
                 {
@@ -182,7 +182,7 @@ namespace Terraria
             string str = ev.getChat();
             Player player = ev.getPlayer();
 
-            if (player.isOP)
+            if (player.isOP || player.hasPermissions("op") || player.hasPermissions("terracmd.op.color"))
             {
                 foreach (Player player2 in Main.player)
                 {
@@ -191,18 +191,18 @@ namespace Terraria
                         player2.sendMessage("<" + opTag + player.name + "> " + str, opR, opG, opB);
                     }
                 }
-                ev.setState(false);
+                ev.setState(true);
             } else
             {
                 base.onPlayerChat(ev);
-                ev.setState(false);
+                ev.setState(true);
             }
         }
 
         public override void onPlayerJoin(PlayerEvent ev)
         {
             this.motd(ev.getPlayer());
-            if (this.settings["antihack"] == "kick")
+            if (this.settings["antihack"] == "kick" && !ev.getPlayer().hasPermissions("terracmd.antihack.bypass"))
             {
                 if (ev.getPlayer().statLifeMax > 400 | ev.getPlayer().statManaMax > 200)
                 {
