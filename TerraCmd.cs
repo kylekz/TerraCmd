@@ -147,7 +147,7 @@ namespace Terraria
                 ev.getPlayer().sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
                 ev.setState(true);
             }
-            if (cmd[0] == "terracmd" && ev.getPlayer().isOP || player.hasPermissions("terracmd.reload"))
+            else if ((cmd[0] == "/terracmd") && (ev.getPlayer().isOP || player.hasPermissions("terracmd.reload")))
             {
                 loadSettings();
                 ev.getPlayer().sendMessage(pluginName + pluginVersion + " by " + pluginAuthor + " -- Reloaded!", 51, 255, 0);

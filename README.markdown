@@ -1,5 +1,7 @@
 ## TerraCmd - Fun & Admin Commands for tMod.
 
+##### Permissions v1.2 is required. TerraCmd will not function properly without it.
+
 ### Features
 
 - Anti-hack: User is kicked on join if their health or mana is over their legitimate limits.
@@ -37,6 +39,11 @@
 - Add a settings value for antihack=OP and/or everyone.
 
 ### Changelog
+
+#### v1.1.1
+
+- Fixed the plugin reloading whenever someone did /login with Permissions and on /oplogin.
+- Fixed /terracmd command.
 
 #### v1.1
 
