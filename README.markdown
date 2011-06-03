@@ -9,15 +9,41 @@
 	- A RGB color chart can be found [here.](http://www.web-source.net/216_color_chart.htm)
 - OP tag and coloring system. Same as the MOTD color system. Edit opR, opG, opB values as if it were a RGB scale.
 - Automatic map saving. Saves every 10 minutes.
+- Settings reload command.
+- Change server password in-game. (Doesn't persist over restarts, you must set it manually to persist.)
+- Our own [Permissions](http://github.com/PwnCraft/Permissions) support.
+
+### Permissions nodes
+
+- Antihack:
+	- terracmd.antihack.bypass
+		- Unaffected by antihack. Can enter the server with hacked stats.
+- Userlist:
+	- terracmd.playerlist
+		- Can use /list, /playerlist, /online, or /players to access the playerlist.
+- TerraCmd Settings reload:
+	- terracmd.reload
+		- Can use /terracmd in-game to reload plugin settings. (May be buggy)
+		- User can also just be OP.
+- In-game password changing:
+	- terracmd.password
+		- Can use /password [newpassword] to temporarily change the server password.
+		- Minimum of 3 characters, 0 characters will remove the password.
+		- User can also just be OP.
 
 ### To do
 
-- Add our Permissions system support.
 - Make the save interval editable.
 - Add a settings value for antihack=OP and/or everyone.
-- Add settings reload command. (/terracmd)
 
 ### Changelog
+
+#### v1.1
+
+- Added [Permissions](http://github.com/PwnCraft/Permissions) support.
+- Added in-game password changing & settings reload commands.
+- Fixed up the OP tagging and coloring.
+- Updated for tMod 009.
 
 #### v1.0
 

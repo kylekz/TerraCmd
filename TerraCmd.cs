@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -147,16 +147,11 @@ namespace Terraria
                 ev.getPlayer().sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
                 ev.setState(true);
             }
-            else if (cmd[0] == "/terracmd")
+            if (cmd[0] == "terracmd" && ev.getPlayer().isOP || player.hasPermissions("terracmd.reload"))
             {
-                if (cmd[1] == null)
-                {
-                    ev.getPlayer().sendMessage(pluginName + " v" + pluginVersion + " by " + pluginAuthor, 51, 255, 0);
-                }
-                else if (cmd[1] == "reload" && ev.getPlayer().isOP || player.hasPermissions("terracmd.reload"))
-                {
-                    loadSettings();
-                }
+                loadSettings();
+                ev.getPlayer().sendMessage(pluginName + pluginVersion + " by " + pluginAuthor + " -- Reloaded!", 51, 255, 0);
+		ev.setState(true);
             }
             else if (cmd[0] == "/password" && ev.getPlayer().isOP || player.hasPermissions("terracmd.password"))
             {
@@ -182,20 +177,34 @@ namespace Terraria
             string str = ev.getChat();
             Player player = ev.getPlayer();
 
-            if (player.isOP || player.hasPermissions("op") || player.hasPermissions("terracmd.op.color"))
+            if (player.isOP)
             {
-                foreach (Player player2 in Main.player)
+                Player[] player2 = Main.player;
+                Player[] players = player2;
+                for (int i = 0; i < players.Length; i++)
                 {
-                    if (player2.name.Length > 0)
+                    Player player3 = players[i];
+                    if (player3.name.Length > 0)
                     {
-                        player2.sendMessage("<" + opTag + player.name + "> " + str, opR, opG, opB);
+                        player3.sendMessage("<" + opTag + player.name + "> " + str, opR, opG, opB);
                     }
                 }
-                ev.setState(true);
-            } else
+                ev.setState(false);
+                return;
+            }
+            else
             {
-                base.onPlayerChat(ev);
-                ev.setState(true);
+                Player[] player4 = Main.player;
+                Player[] players2 = player4;
+                for (int i2 = 0; i2 < players2.Length; i2++)
+                {
+                    Player player5 = players2[i2];
+                    if (player5.name.Length > 0)
+                    {
+                        player5.sendMessage("<" + player.name + "> " + str, 255, 255, 255);
+                    }
+                }
+                ev.setState(false);
             }
         }
 
@@ -206,7 +215,7 @@ namespace Terraria
             {
                 if (ev.getPlayer().statLifeMax > 400 | ev.getPlayer().statManaMax > 200)
                 {
-                    ev.getPlayer().kick("You were kicked for hacked health and/or mana!");
+                    NetMessage.SendData(2, ev.getPlayer().whoAmi, -1, "You were kicked for having hacked stats!", 0, 0f, 0f, 0f);
                     Console.WriteLine(ev.getPlayer().name + " was kicked for hacking their health or mana!");
                 }
             }
