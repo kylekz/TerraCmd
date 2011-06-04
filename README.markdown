@@ -40,6 +40,11 @@
 
 ### Changelog
 
+#### v1.2
+
+- Fixed chat messages showing before being logged in with Permissions.
+- Misc. other things to improve Permissions binding.
+
 #### v1.1.1
 
 - Fixed the plugin reloading whenever someone did /login with Permissions and on /oplogin.

@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.Collections;
 using System.IO;
 using System.Threading;
+using Permissions;
 
 namespace Terraria
 {
@@ -31,7 +32,7 @@ namespace Terraria
             pluginName = "TerraCmd";
             pluginDescription = "Misc. commands for tMod";
             pluginAuthor = "Kaikz";
-            pluginVersion = "v1.1";
+            pluginVersion = "v1.2";
 
             this.registerHook(Hook.PLAYER_COMMAND);
             this.registerHook(Hook.PLAYER_CHAT);
@@ -127,7 +128,7 @@ namespace Terraria
         {
             string[] cmd = ev.getCommandArray();
             Player player = ev.getPlayer();
-            if (cmd[0].ToLower() == "/list" || cmd[0] == "/playerlist" || cmd[0].ToLower() == "/online" || cmd[0].ToLower() == "/players" && player.hasPermissions("terracmd.playerlist"))
+            if ((cmd[0] == "/list" || cmd[0] == "/playerlist" || cmd[0] == "/online" || cmd[0] == "/players") && (player.hasPermissions("terracmd.playerlist")))
             {
                 string str = "";
                 for (int i = 0; i < 8; i++)
@@ -144,30 +145,33 @@ namespace Terraria
                         }
                     }
                 }
-                ev.getPlayer().sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
+                player.sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
                 ev.setState(true);
             }
-            else if ((cmd[0] == "/terracmd") && (ev.getPlayer().isOP || player.hasPermissions("terracmd.reload")))
+            else if ((cmd[0] == "/terracmd") && (player.isOP || player.hasPermissions("terracmd.reload")))
             {
                 loadSettings();
-                ev.getPlayer().sendMessage(pluginName + pluginVersion + " by " + pluginAuthor + " -- Reloaded!", 51, 255, 0);
-		ev.setState(true);
+                player.sendMessage(pluginName + " " + pluginVersion + " -- Reloaded!", 51, 255, 0);
+		        ev.setState(true);
             }
-            else if (cmd[0] == "/password" && ev.getPlayer().isOP || player.hasPermissions("terracmd.password"))
+            else if ((cmd[0] == "/password") && (player.isOP || player.hasPermissions("terracmd.password")))
             {
                 if (cmd[1] == null)
                 {
                     Netplay.password = "";
-                    ev.getPlayer().sendMessage("Server password removed!", 0, 255, 0);
+                    player.sendMessage("Server password removed!", 51, 255, 0);
+                    ev.setState(true);
                 }
                 else if (cmd[1].Length > 3)
                 {
                     Netplay.password = cmd[1];
-                    ev.getPlayer().sendMessage("Password reset to: " + cmd[1] + "!", 0, 255, 0);
+                    player.sendMessage("Password reset to: " + cmd[1] + "!", 51, 255, 0);
+                    ev.setState(true);
                 }
                 else
                 {
-                    ev.getPlayer().sendMessage("Invalid password!", 0, 255, 0);
+                    player.sendMessage("Invalid password!", 255, 0, 0);
+                    ev.setState(true);
                 }
             }
         }
@@ -176,6 +180,11 @@ namespace Terraria
         {
             string str = ev.getChat();
             Player player = ev.getPlayer();
+
+            if (!AuthManager.isLoggedIn(player))
+            { 
+                return;
+            }
 
             if (player.isOP)
             {
@@ -220,52 +229,5 @@ namespace Terraria
                 }
             }
         }
-    }
-
-    public enum NPCCode
-    {
-        AngryBones = 0x1f,
-        ArmsDealer = 0x13,
-        BlueSlime = 1,
-        BoneSerpentBody = 40,
-        BoneSerpentHead = 0x27,
-        BoneSerpentTail = 0x29,
-        BuringSkull = 0x22,
-        BurningSphere = 0x19,
-        ChaosBall = 30,
-        DarkCaster = 0x20,
-        Demolitionist = 0x26,
-        DemonEye = 2,
-        DevourerBody = 8,
-        DevourerHead = 7,
-        DevourerTail = 9,
-        Dryad = 20,
-        EaterOfSouls = 6,
-        EaterOfWorldaTail = 15,
-        EaterOfWorldsBody = 14,
-        EaterOfWorldsHead = 13,
-        EyeOfCthulhu = 4,
-        FireImp = 0x18,
-        GiantWormBody = 11,
-        GiantWormHead = 10,
-        GiantWormTail = 12,
-        GoblinPeon = 0x1a,
-        GoblinSorcerer = 0x1d,
-        GoblinThief = 0x1b,
-        GoblinWarrior = 0x1c,
-        Guide = 0x16,
-        Hornet = 0x2a,
-        ManEater = 0x2b,
-        Merchant = 0x11,
-        MeteorHead = 0x17,
-        MotherSlime = 0x10,
-        Nurse = 0x12,
-        OldMan = 0x25,
-        ServantOfCthulu = 5,
-        Skeleton = 0x15,
-        SkeletronHand = 0x24,
-        SkeletronHead = 0x23,
-        WaterSphere = 0x21,
-        Zombie = 3
     }
 }
