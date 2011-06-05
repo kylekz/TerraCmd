@@ -19,6 +19,7 @@ namespace Terraria
         // OP config
         public string opTag;
         public int opR, opG, opB;
+		public bool opSettings;
         // motd config
         public int motdR, motdG, motdB;
         // Save config
@@ -26,6 +27,8 @@ namespace Terraria
         private Thread saveThread;
         // Anti-hack config
         public string kickorban;
+        // /give vars
+        public Player result;
 
         public override void Initialize()
         {
@@ -80,6 +83,7 @@ namespace Terraria
             if (!File.Exists(settingsPath))
             {
                 TextWriter writer = new StreamWriter(settingsPath);
+				writer.WriteLine("opSettings=false");
                 writer.WriteLine("opTag=[OP]");
                 writer.WriteLine("opR=255");
                 writer.WriteLine("opG=0");
@@ -98,6 +102,7 @@ namespace Terraria
             }
 
             // OP Settings
+			opSettings = bool.Parse(this.settings["opSettings"]);
             opTag = this.settings["opTag"];
             opR = int.Parse(this.settings["opR"]);
             opG = int.Parse(this.settings["opG"]);
@@ -145,14 +150,14 @@ namespace Terraria
                         }
                     }
                 }
-                player.sendMessage("Players Online: " + str + ".", 0xff, 240, 20);
+                player.sendMessage("Current players: " + str + ".", 0xff, 240, 20);
                 ev.setState(true);
             }
             else if ((cmd[0] == "/terracmd") && (player.isOP || player.hasPermissions("terracmd.reload")))
             {
                 loadSettings();
                 player.sendMessage(pluginName + " " + pluginVersion + " -- Reloaded!", 51, 255, 0);
-		        ev.setState(true);
+                ev.setState(true);
             }
             else if ((cmd[0] == "/password") && (player.isOP || player.hasPermissions("terracmd.password")))
             {
@@ -178,43 +183,50 @@ namespace Terraria
 
         public override void onPlayerChat(ChatEvent ev)
         {
-            string str = ev.getChat();
-            Player player = ev.getPlayer();
+			if (opSettings == true)
+			{
+            	string str = ev.getChat();
+            	Player player = ev.getPlayer();
 
-            if (!AuthManager.isLoggedIn(player))
-            { 
-                return;
-            }
+            	if (!AuthManager.isLoggedIn(player))
+            	{ 
+            	    return;
+            	}
 
-            if (player.isOP)
-            {
-                Player[] player2 = Main.player;
-                Player[] players = player2;
-                for (int i = 0; i < players.Length; i++)
-                {
-                    Player player3 = players[i];
-                    if (player3.name.Length > 0)
-                    {
-                        player3.sendMessage("<" + opTag + player.name + "> " + str, opR, opG, opB);
-                    }
-                }
-                ev.setState(false);
-                return;
-            }
-            else
-            {
-                Player[] player4 = Main.player;
-                Player[] players2 = player4;
-                for (int i2 = 0; i2 < players2.Length; i2++)
-                {
-                    Player player5 = players2[i2];
-                    if (player5.name.Length > 0)
-                    {
-                        player5.sendMessage("<" + player.name + "> " + str, 255, 255, 255);
-                    }
-                }
-                ev.setState(false);
-            }
+            	if (player.isOP)
+            	{
+            	    Player[] player2 = Main.player;
+            	    Player[] players = player2;
+            	    for (int i = 0; i < players.Length; i++)
+            	    {
+            	        Player player3 = players[i];
+             	       if (player3.name.Length > 0)
+            	        {
+          	              player3.sendMessage("<" + opTag + player.name + "> " + str, opR, opG, opB);
+           	         }
+          	      }
+                	ev.setState(false);
+                	return;
+            	}
+            	else
+            	{
+                	Player[] player4 = Main.player;
+                	Player[] players2 = player4;
+                	for (int i2 = 0; i2 < players2.Length; i2++)
+                	{
+                    	Player player5 = players2[i2];
+                    	if (player5.name.Length > 0)
+                    	{
+                        	player5.sendMessage("<" + player.name + "> " + str, 255, 255, 255);
+                    	}
+                	}
+                	ev.setState(false);
+            	}
+			}
+			else
+			{
+				ev.setState(true);
+			}
         }
 
         public override void onPlayerJoin(PlayerEvent ev)
