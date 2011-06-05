@@ -205,7 +205,7 @@ namespace Terraria
           	              player3.sendMessage("<" + opTag + player.name + "> " + str, opR, opG, opB);
            	         }
           	      }
-                	ev.setState(false);
+                	ev.setState(true);
                 	return;
             	}
             	else
@@ -222,10 +222,6 @@ namespace Terraria
                 	}
                 	ev.setState(false);
             	}
-			}
-			else
-			{
-				ev.setState(true);
 			}
         }
 

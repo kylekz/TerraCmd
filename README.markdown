@@ -1,6 +1,6 @@
 ## TerraCmd - Fun & Admin Commands for tMod.
 
-##### Permissions v1.2 is required. TerraCmd will not function properly without it.
+##### [Permissions](http://github.com/PwnCraft/Permissions) is required. TerraCmd will not function properly without it.
 
 ### Features
 
@@ -39,6 +39,11 @@
 - Add a settings value for antihack=OP and/or everyone.
 
 ### Changelog
+
+#### v1.2.1
+
+- Compatible with TerraChat and General Commands by adding setting to switch off OP tagging/coloring.
+	- You must add "opSetting=false" to your terracmd.txt config file for it to be switched off.
 
 #### v1.2
 
