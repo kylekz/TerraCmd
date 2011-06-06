@@ -35,10 +35,17 @@
 
 ### To do
 
-- Make the save interval editable.
 - Add a settings value for antihack=OP and/or everyone.
 
 ### Changelog
+
+#### v1.3
+
+- On enable, if a setting isn't found, it will add the default value to the config and load that.
+- Added the option to change the auto-save interval.
+- Added the option to stop auto-save.
+- Added auto-backup at a configurable interval.
+	- Currently disabled in v1.3. Came into some issues with threading.
 
 #### v1.2.1
 

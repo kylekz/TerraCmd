@@ -22,20 +22,26 @@ namespace Terraria
 		public bool opSettings;
         // motd config
         public int motdR, motdG, motdB;
-        // Save config
-        public int saveInterval = 600000;
+        public string motdString;
+        // Save/backups config
+        public int saveInterval;
         private Thread saveThread;
+        public bool saving;
+        public int backupInterval;
+        private Thread backupThread;
+        public bool backuping;
+        public string worldName;
+        public DateTime timeNow;
+        public string backupPath = "plugins/TerraCmd/Backups";
         // Anti-hack config
         public string kickorban;
-        // /give vars
-        public Player result;
 
         public override void Initialize()
         {
             pluginName = "TerraCmd";
             pluginDescription = "Misc. commands for tMod";
             pluginAuthor = "Kaikz";
-            pluginVersion = "v1.2";
+            pluginVersion = "v1.3";
 
             this.registerHook(Hook.PLAYER_COMMAND);
             this.registerHook(Hook.PLAYER_CHAT);
@@ -44,9 +50,6 @@ namespace Terraria
             loadSettings();
 
             Console.WriteLine("[TerraCmd] " + pluginVersion + " loaded!");
-
-            this.saveThread = new Thread(new ThreadStart(this.saveMap));
-            this.saveThread.Start();
         }
 
         public override void Unload()
@@ -61,18 +64,59 @@ namespace Terraria
 
         public void motd(Player p)
         {
-            string msg = this.settings["motd"];
-            msg = msg.Replace("[player]", p.name).Replace("[server]", Main.getIP);
+            string msg = motdString;
+            msg = msg.Replace("[player]", p.name);
+            msg = msg.Replace("[server]", Main.getIP);
             p.sendMessage(msg, motdR, motdG, motdB);
         }
 
         public void saveMap()
         {
-            while (true)
+            while (saving == true)
             {
                 Thread.Sleep(this.saveInterval);
                 NetMessage.broadcastMessage("Saving world... this might lag for a minute!");
                 WorldGen.saveWorld(false);
+            }
+        }
+
+        public void backupMap()
+        {
+            while (backuping == true)
+            {
+                timeNow = DateTime.Now;
+                string timeString = timeNow.ToString();
+                if (!System.IO.Directory.Exists("plugins/TerraCmd"));
+                {
+                    System.IO.Directory.CreateDirectory("plugins/TerraCmd");
+                }
+                if (!System.IO.Directory.Exists("plugins/TerraCmd/Backups"));
+                {
+                    System.IO.Directory.CreateDirectory("plugins/TerraCmd/Backups");
+                }
+                Thread.Sleep(this.backupInterval);
+                string sourcePath = worldName;
+                string destPath = "plugins/TerraCmd/Backups/" + timeString + "-" + worldName;
+                System.IO.File.Copy(sourcePath, destPath, true);
+                Console.WriteLine("[TerraCmd] " + worldName + " backed up to " + destPath + "!");
+            }
+        }
+
+        protected string getSetting(string setting, string settingValue)
+        {
+            try
+            {
+                string ret = settings[setting];
+                return ret;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[TerraCmd] Missing setting: " + setting);
+                TextWriter t = new StreamWriter(settingsPath, true);
+                t.WriteLine(setting + "=" + settingValue);
+                t.Close();
+                this.settings.Add(setting, settingValue);
+                return settingValue;
             }
         }
 
@@ -88,11 +132,15 @@ namespace Terraria
                 writer.WriteLine("opR=255");
                 writer.WriteLine("opG=0");
                 writer.WriteLine("opB=0");
-                writer.WriteLine("motd=Welcome to [server], [player]!");
+                writer.WriteLine("motd=Welcome to our server, [player]!");
                 writer.WriteLine("motdR=51");
                 writer.WriteLine("motdG=255");
                 writer.WriteLine("motdB=0");
                 writer.WriteLine("antihack=kick");
+                writer.WriteLine("saveInterval=600000");
+                writer.WriteLine("savingEnabled=true");
+                writer.WriteLine("backupInterval=1800000");
+                writer.WriteLine("backupsEnabled=false");
                 writer.Close();
             }
 
@@ -102,19 +150,36 @@ namespace Terraria
             }
 
             // OP Settings
-			opSettings = bool.Parse(this.settings["opSettings"]);
-            opTag = this.settings["opTag"];
-            opR = int.Parse(this.settings["opR"]);
-            opG = int.Parse(this.settings["opG"]);
-            opB = int.Parse(this.settings["opB"]);
-
+			opSettings = bool.Parse(getSetting("opSettings", "false"));
+            opTag = getSetting("opTag", "[OP]");
+            opR = int.Parse(getSetting("opR", "255"));
+            opG = int.Parse(getSetting("opG", "0"));
+            opB = int.Parse(getSetting("opB", "0"));
             // MOTD Settings
-            motdR = int.Parse(this.settings["motdR"]);
-            motdG = int.Parse(this.settings["motdG"]);
-            motdB = int.Parse(this.settings["motdB"]);
-
+            motdString = getSetting("motd", "Welcome to our server, [player]!");
+            motdR = int.Parse(getSetting("motdR", "51"));
+            motdG = int.Parse(getSetting("motdG", "255"));
+            motdB = int.Parse(getSetting("motdB", "0"));
             // Anti-hack Settings
-            kickorban = this.settings["antihack"];
+            kickorban = getSetting("antihack", "kick");
+            // Save/Backup Settings
+            saveInterval = int.Parse(getSetting("saveInterval", "600000"));
+            saving = bool.Parse(getSetting("savingEnabled", "true"));
+            backupInterval = int.Parse(getSetting("backupInterval", "1800000"));
+            backuping = bool.Parse(getSetting("backupsEnabled", "false"));
+
+            if (saving == true)
+            {
+                this.saveThread = new Thread(new ThreadStart(this.saveMap));
+                this.saveThread.Start();
+            }
+
+            //if (backuping == true)
+            //{
+            //    worldName = Main.properties["worldName"];
+            //    this.backupThread = new Thread(new ThreadStart(this.backupMap));
+            //    this.backupThread.Start();
+            //}
         }
 
         public Player getPlayerFromString(string p)
@@ -228,7 +293,7 @@ namespace Terraria
         public override void onPlayerJoin(PlayerEvent ev)
         {
             this.motd(ev.getPlayer());
-            if (this.settings["antihack"] == "kick" && !ev.getPlayer().hasPermissions("terracmd.antihack.bypass"))
+            if (kickorban == "kick" && !ev.getPlayer().hasPermissions("terracmd.antihack.bypass"))
             {
                 if (ev.getPlayer().statLifeMax > 400 | ev.getPlayer().statManaMax > 200)
                 {
